@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "itemrename",
+  "version": "${version}",
+  "name": "Itemrename",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/itemrename/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "gay.nyako.itemrename.ItemRenameMod"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.14.10",
+    "fabric": "*",
+    "minecraft": "1.19.2"
+  }
+}
