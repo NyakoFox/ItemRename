@@ -52,7 +52,7 @@ public final class RenameCommand {
         if (heldStack.isEmpty()) {
             context.getSource().sendError(Text.literal("You can't rename nothing."));
         } else {
-            heldStack.setCustomName(newName);
+            heldStack.setCustomName(((MutableText)newName).styled(x -> x.withItalic(false)));
             var startingText = (MutableText) Text.literal("Your item has been renamed to ");
             context.getSource().sendFeedback(startingText.append(newName).append("."), false);
         }

@@ -12,6 +12,7 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
 import static net.minecraft.server.command.CommandManager.*;
@@ -72,7 +73,7 @@ public final class LoreCommand {
             NbtCompound nbtDisplay = nbt.getCompound(ItemStack.DISPLAY_KEY);
             NbtList nbtLore = nbtDisplay.getList(ItemStack.LORE_KEY, NbtElement.STRING_TYPE);
 
-            nbtLore.add(NbtString.of(Text.Serializer.toJson(newText)));
+            nbtLore.add(NbtString.of(Text.Serializer.toJson(((MutableText)newText).styled(x -> x.withItalic(false)))));
 
             nbtDisplay.put(ItemStack.LORE_KEY, nbtLore);
             nbt.put(ItemStack.DISPLAY_KEY, nbtDisplay);
@@ -141,7 +142,7 @@ public final class LoreCommand {
             NbtCompound nbtDisplay = nbt.getCompound(ItemStack.DISPLAY_KEY);
             NbtList nbtLore = nbtDisplay.getList(ItemStack.LORE_KEY, NbtElement.STRING_TYPE);
 
-            nbtLore.add(index, NbtString.of(Text.Serializer.toJson(newText)));
+            nbtLore.add(index, NbtString.of(Text.Serializer.toJson(((MutableText)newText).styled(x -> x.withItalic(false)))));
 
             nbtDisplay.put(ItemStack.LORE_KEY, nbtLore);
             nbt.put(ItemStack.DISPLAY_KEY, nbtDisplay);
@@ -168,7 +169,7 @@ public final class LoreCommand {
             if (index < 0 || index >= nbtLore.size()) {
                 context.getSource().sendError(Text.literal("Index out of bounds."));
             } else {
-                nbtLore.set(index, NbtString.of(Text.Serializer.toJson(newText)));
+                nbtLore.set(index, NbtString.of(Text.Serializer.toJson(((MutableText)newText).styled(x -> x.withItalic(false)))));
 
                 nbtDisplay.put(ItemStack.LORE_KEY, nbtLore);
                 nbt.put(ItemStack.DISPLAY_KEY, nbtDisplay);
