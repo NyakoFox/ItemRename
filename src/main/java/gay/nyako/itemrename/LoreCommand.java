@@ -55,7 +55,7 @@ public final class LoreCommand {
             nbtDisplay.put(ItemStack.LORE_KEY, nbtLore);
             nbt.put(ItemStack.DISPLAY_KEY, nbtDisplay);
             heldStack.setNbt(nbt);
-            context.getSource().sendFeedback(Text.literal("Lore cleared."), false);
+            context.getSource().sendFeedback(() -> Text.literal("Lore cleared."), false);
         }
         return 1;
     }
@@ -78,7 +78,7 @@ public final class LoreCommand {
             nbtDisplay.put(ItemStack.LORE_KEY, nbtLore);
             nbt.put(ItemStack.DISPLAY_KEY, nbtDisplay);
             heldStack.setNbt(nbt);
-            source.sendFeedback(Text.literal("Lore applied."), false);
+            source.sendFeedback(() -> Text.literal("Lore applied."), false);
         }
         return 1;
     }
@@ -100,7 +100,7 @@ public final class LoreCommand {
             nbtDisplay.put(ItemStack.LORE_KEY, nbtLore);
             nbt.put(ItemStack.DISPLAY_KEY, nbtDisplay);
             heldStack.setNbt(nbt);
-            source.sendFeedback(Text.literal("Lore applied."), false);
+            source.sendFeedback(() -> Text.literal("Lore applied."), false);
         }
         return 1;
     }
@@ -123,7 +123,7 @@ public final class LoreCommand {
             nbtDisplay.put(ItemStack.LORE_KEY, nbtLore);
             nbt.put(ItemStack.DISPLAY_KEY, nbtDisplay);
             heldStack.setNbt(nbt);
-            source.sendFeedback(Text.literal("Lore applied."), false);
+            source.sendFeedback(() -> Text.literal("Lore applied."), false);
         }
         return 1;
     }
@@ -147,7 +147,7 @@ public final class LoreCommand {
             nbtDisplay.put(ItemStack.LORE_KEY, nbtLore);
             nbt.put(ItemStack.DISPLAY_KEY, nbtDisplay);
             heldStack.setNbt(nbt);
-            source.sendFeedback(Text.literal("Lore applied."), false);
+            source.sendFeedback(() -> Text.literal("Lore applied."), false);
         }
         return 1;
     }
@@ -174,7 +174,7 @@ public final class LoreCommand {
                 nbtDisplay.put(ItemStack.LORE_KEY, nbtLore);
                 nbt.put(ItemStack.DISPLAY_KEY, nbtDisplay);
                 heldStack.setNbt(nbt);
-                context.getSource().sendFeedback(Text.literal("Lore applied."), false);
+                context.getSource().sendFeedback(() -> Text.literal("Lore applied."), false);
             }
         }
         return 1;
@@ -201,7 +201,7 @@ public final class LoreCommand {
                 nbtDisplay.put(ItemStack.LORE_KEY, nbtLore);
                 nbt.put(ItemStack.DISPLAY_KEY, nbtDisplay);
                 heldStack.setNbt(nbt);
-                context.getSource().sendFeedback(Text.literal("Lore removed."), false);
+                context.getSource().sendFeedback(() -> Text.literal("Lore removed."), false);
             }
         }
         return 1;

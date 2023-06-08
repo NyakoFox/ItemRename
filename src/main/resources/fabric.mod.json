@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "itemrename",
   "version": "${version}",
-  "name": "Itemrename",
+  "name": "ItemRename",
   "description": "",
   "authors": [],
   "contact": {},
@@ -17,6 +17,6 @@
   "depends": {
     "fabricloader": ">=0.14.10",
     "fabric": "*",
-    "minecraft": ">=1.19.3"
+    "minecraft": ">=1.20"
   }
 }

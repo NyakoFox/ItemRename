@@ -36,7 +36,7 @@ public final class RenameCommand {
             context.getSource().sendError(Text.literal("You can't rename nothing."));
         } else {
             heldStack.removeCustomName();
-            context.getSource().sendFeedback(Text.literal("Your item's name has been cleared."), false);
+            context.getSource().sendFeedback(() -> Text.literal("Your item's name has been cleared."), false);
         }
         return 1;
     }
@@ -54,7 +54,7 @@ public final class RenameCommand {
         } else {
             heldStack.setCustomName(((MutableText)newName).styled(x -> x.withItalic(false)));
             var startingText = (MutableText) Text.literal("Your item has been renamed to ");
-            context.getSource().sendFeedback(startingText.append(newName).append("."), false);
+            context.getSource().sendFeedback(() -> startingText.append(newName).append("."), false);
         }
         return 1;
     }

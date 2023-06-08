@@ -1,6 +1,9 @@
 plugins {
     id 'fabric-loom' version '1.0-SNAPSHOT'
     id 'maven-publish'
+    id "co.uzzu.dotenv.gradle" version "2.0.0"
+    id "com.matthewprenger.cursegradle" version "1.4.0"
+    id "com.modrinth.minotaur" version "2.+"
 }
 
 version = project.mod_version
@@ -24,7 +27,7 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modImplementation include("eu.pb4:placeholder-api:2.0.0-pre.1+1.19.2")
+    modImplementation include("eu.pb4:placeholder-api:${project.placeholder_api_version}")
 }
 
 processResources {
@@ -80,5 +83,54 @@ publishing {
         // Notice: This block does NOT have the same function as the block in the top level.
         // The repositories here will be used for publishing your artifact, not for
         // retrieving dependencies.
+    }
+}
+
+import com.modrinth.minotaur.dependencies.ModDependency
+
+modrinth {
+    token = env.MODRINTH_TOKEN.value
+    projectId = 'i5cjb3PQ'
+    versionNumber = project.mod_version
+    versionName = 'ItemRename ' + project.mod_version
+    uploadFile = remapJar
+    gameVersions = List<String>.of(project.functional_versions.split(","))
+    loaders = ['fabric', 'quilt']
+    changelog = file("changelog.md").text
+    dependencies = [
+            new ModDependency('P7dR8mSH', 'required') // Fabric API
+    ]
+}
+
+curseforge {
+    apiKey = env.CURSEFORGE_TOKEN.value
+    project {
+        id = '711029'
+        releaseType = 'release'
+        changelog = file("changelog.md").text
+        changelogType = 'markdown'
+
+        for (version in functional_versions.split(",")) {
+            addGameVersion(version)
+        }
+
+        addGameVersion "Java 17"
+        addGameVersion "Fabric"
+        addGameVersion "Quilt"
+
+        relations {
+            requiredDependency("fabric-api")
+        }
+
+        mainArtifact(remapJar.archiveFile) {
+            displayName = 'ItemRename ' + project.mod_version
+        }
+
+        afterEvaluate {
+            uploadTask.dependsOn remapJar
+        }
+    }
+    options {
+        forgeGradleIntegration = false
     }
 }
