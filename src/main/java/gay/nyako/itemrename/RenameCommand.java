@@ -5,6 +5,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.pb4.placeholders.api.TextParserUtils;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.CommandManager;
@@ -35,7 +36,7 @@ public final class RenameCommand {
         if (heldStack.isEmpty()) {
             context.getSource().sendError(Text.literal("You can't rename nothing."));
         } else {
-            heldStack.removeCustomName();
+            heldStack.set(DataComponentTypes.CUSTOM_NAME, null);
             context.getSource().sendFeedback(() -> Text.literal("Your item's name has been cleared."), false);
         }
         return 1;
@@ -52,7 +53,7 @@ public final class RenameCommand {
         if (heldStack.isEmpty()) {
             context.getSource().sendError(Text.literal("You can't rename nothing."));
         } else {
-            heldStack.setCustomName(((MutableText)newName).styled(x -> x.withItalic(false)));
+            heldStack.set(DataComponentTypes.CUSTOM_NAME, ((MutableText)newName).styled(x -> x.withItalic(false)));
             var startingText = (MutableText) Text.literal("Your item has been renamed to ");
             context.getSource().sendFeedback(() -> startingText.append(newName).append("."), false);
         }
