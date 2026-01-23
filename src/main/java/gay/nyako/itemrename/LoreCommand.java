@@ -5,27 +5,21 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import eu.pb4.placeholders.api.TextParserUtils;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.LoreComponent;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemLore;
 
-import static net.minecraft.server.command.CommandManager.*;
+import static net.minecraft.commands.Commands.*;
 
 public final class LoreCommand {
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(literal("lore")
                 .then(literal("clear").executes(LoreCommand::clearLore))
                 .then(literal("add")
@@ -46,132 +40,132 @@ public final class LoreCommand {
         );
     }
 
-    public static int clearLore(CommandContext<ServerCommandSource> context) {
-        ServerCommandSource source = context.getSource();
-        PlayerEntity player = source.getPlayer();
+    public static int clearLore(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        Player player = source.getPlayer();
         if (player == null) return 0;
-        ItemStack heldStack = player.getMainHandStack();
+        ItemStack heldStack = player.getMainHandItem();
         if (heldStack.isEmpty()) {
-            context.getSource().sendError(Text.literal("You can't clear the lore of nothing."));
+            context.getSource().sendFailure(Component.literal("You can't clear the lore of nothing."));
         } else {
-            heldStack.remove(DataComponentTypes.LORE);
-            context.getSource().sendFeedback(() -> Text.literal("Lore cleared."), false);
+            heldStack.remove(DataComponents.LORE);
+            context.getSource().sendSuccess(() -> Component.literal("Lore cleared."), false);
         }
         return 1;
     }
 
-    public static int addLore(CommandContext<ServerCommandSource> context) {
-        ServerCommandSource source = context.getSource();
-        PlayerEntity player = source.getPlayer();
+    public static int addLore(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        Player player = source.getPlayer();
         if (player == null) return 0;
-        ItemStack heldStack = player.getMainHandStack();
-        Text newText = TextParserUtils.formatTextSafe(context.getArgument("text", String.class));
+        ItemStack heldStack = player.getMainHandItem();
+        Component newText = TextParserUtils.formatTextSafe(context.getArgument("text", String.class));
         if (heldStack.isEmpty()) {
-            source.sendError(Text.literal("You can't add lore to nothing."));
+            source.sendFailure(Component.literal("You can't add lore to nothing."));
         } else {
-            var currentLore = heldStack.getOrDefault(DataComponentTypes.LORE, new LoreComponent(List.of()));
-            ArrayList<Text> lines = new ArrayList<>(currentLore.lines());
-            lines.add(((MutableText)newText).styled(x -> x.withItalic(false)));
-            heldStack.set(DataComponentTypes.LORE, new LoreComponent(lines));
-            source.sendFeedback(() -> Text.literal("Lore applied."), false);
+            var currentLore = heldStack.getOrDefault(DataComponents.LORE, new ItemLore(List.of()));
+            ArrayList<Component> lines = new ArrayList<>(currentLore.lines());
+            lines.add(((MutableComponent)newText).withStyle(x -> x.withItalic(false)));
+            heldStack.set(DataComponents.LORE, new ItemLore(lines));
+            source.sendSuccess(() -> Component.literal("Lore applied."), false);
         }
         return 1;
     }
 
-    public static int addEmptyLore(CommandContext<ServerCommandSource> context) {
-        ServerCommandSource source = context.getSource();
-        PlayerEntity player = source.getPlayer();
+    public static int addEmptyLore(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        Player player = source.getPlayer();
         if (player == null) return 0;
-        ItemStack heldStack = player.getMainHandStack();
+        ItemStack heldStack = player.getMainHandItem();
         if (heldStack.isEmpty()) {
-            source.sendError(Text.literal("You can't add lore to nothing."));
+            source.sendFailure(Component.literal("You can't add lore to nothing."));
         } else {
-            var currentLore = heldStack.getOrDefault(DataComponentTypes.LORE, new LoreComponent(List.of()));
-            ArrayList<Text> lines = new ArrayList<>(currentLore.lines());
-            lines.add(Text.empty());
-            heldStack.set(DataComponentTypes.LORE, new LoreComponent(lines));
-            source.sendFeedback(() -> Text.literal("Lore applied."), false);
+            var currentLore = heldStack.getOrDefault(DataComponents.LORE, new ItemLore(List.of()));
+            ArrayList<Component> lines = new ArrayList<>(currentLore.lines());
+            lines.add(Component.empty());
+            heldStack.set(DataComponents.LORE, new ItemLore(lines));
+            source.sendSuccess(() -> Component.literal("Lore applied."), false);
         }
         return 1;
     }
 
-    public static int addEmptyLoreIndex(CommandContext<ServerCommandSource> context) {
-        ServerCommandSource source = context.getSource();
-        PlayerEntity player = source.getPlayer();
+    public static int addEmptyLoreIndex(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        Player player = source.getPlayer();
         if (player == null) return 0;
-        ItemStack heldStack = player.getMainHandStack();
+        ItemStack heldStack = player.getMainHandItem();
         int index = context.getArgument("index", Integer.class);
         if (heldStack.isEmpty()) {
-            source.sendError(Text.literal("You can't add lore to nothing."));
+            source.sendFailure(Component.literal("You can't add lore to nothing."));
         } else {
-            var currentLore = heldStack.getOrDefault(DataComponentTypes.LORE, new LoreComponent(List.of()));
-            ArrayList<Text> lines = new ArrayList<>(currentLore.lines());
-            lines.add(index, Text.empty());
-            heldStack.set(DataComponentTypes.LORE, new LoreComponent(lines));
-            source.sendFeedback(() -> Text.literal("Lore applied."), false);
+            var currentLore = heldStack.getOrDefault(DataComponents.LORE, new ItemLore(List.of()));
+            ArrayList<Component> lines = new ArrayList<>(currentLore.lines());
+            lines.add(index, Component.empty());
+            heldStack.set(DataComponents.LORE, new ItemLore(lines));
+            source.sendSuccess(() -> Component.literal("Lore applied."), false);
         }
         return 1;
     }
 
-    public static int addLoreIndex(CommandContext<ServerCommandSource> context) {
-        ServerCommandSource source = context.getSource();
-        PlayerEntity player = source.getPlayer();
+    public static int addLoreIndex(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        Player player = source.getPlayer();
         if (player == null) return 0;
-        ItemStack heldStack = player.getMainHandStack();
+        ItemStack heldStack = player.getMainHandItem();
         int index = context.getArgument("index", Integer.class);
-        Text newText = TextParserUtils.formatTextSafe(context.getArgument("lore", String.class));
+        Component newText = TextParserUtils.formatTextSafe(context.getArgument("lore", String.class));
         if (heldStack.isEmpty()) {
-            source.sendError(Text.literal("You can't add lore to nothing."));
+            source.sendFailure(Component.literal("You can't add lore to nothing."));
         } else {
-            var currentLore = heldStack.getOrDefault(DataComponentTypes.LORE, new LoreComponent(List.of()));
-            ArrayList<Text> lines = new ArrayList<>(currentLore.lines());
-            lines.add(index, ((MutableText)newText).styled(x -> x.withItalic(false)));
-            heldStack.set(DataComponentTypes.LORE, new LoreComponent(lines));
-            source.sendFeedback(() -> Text.literal("Lore applied."), false);
+            var currentLore = heldStack.getOrDefault(DataComponents.LORE, new ItemLore(List.of()));
+            ArrayList<Component> lines = new ArrayList<>(currentLore.lines());
+            lines.add(index, ((MutableComponent)newText).withStyle(x -> x.withItalic(false)));
+            heldStack.set(DataComponents.LORE, new ItemLore(lines));
+            source.sendSuccess(() -> Component.literal("Lore applied."), false);
         }
         return 1;
     }
 
-    public static int setLore(CommandContext<ServerCommandSource> context) {
-        ServerCommandSource source = context.getSource();
-        PlayerEntity player = source.getPlayer();
+    public static int setLore(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        Player player = source.getPlayer();
         if (player == null) return 0;
-        ItemStack heldStack = player.getMainHandStack();
-        Text newText = TextParserUtils.formatTextSafe(context.getArgument("text", String.class));
+        ItemStack heldStack = player.getMainHandItem();
+        Component newText = TextParserUtils.formatTextSafe(context.getArgument("text", String.class));
         int index = context.getArgument("index", Integer.class);
         if (heldStack.isEmpty()) {
-            context.getSource().sendError(Text.literal("You can't set the lore of nothing."));
+            context.getSource().sendFailure(Component.literal("You can't set the lore of nothing."));
         } else {
-            var currentLore = heldStack.getOrDefault(DataComponentTypes.LORE, new LoreComponent(List.of()));
-            ArrayList<Text> lines = new ArrayList<>(currentLore.lines());
+            var currentLore = heldStack.getOrDefault(DataComponents.LORE, new ItemLore(List.of()));
+            ArrayList<Component> lines = new ArrayList<>(currentLore.lines());
             if (index < 0 || index >= lines.size()) {
-                context.getSource().sendError(Text.literal("Index out of bounds."));
+                context.getSource().sendFailure(Component.literal("Index out of bounds."));
             } else {
-                lines.set(index, ((MutableText)newText).styled(x -> x.withItalic(false)));
-                heldStack.set(DataComponentTypes.LORE, new LoreComponent(lines));
-                context.getSource().sendFeedback(() -> Text.literal("Lore applied."), false);
+                lines.set(index, ((MutableComponent)newText).withStyle(x -> x.withItalic(false)));
+                heldStack.set(DataComponents.LORE, new ItemLore(lines));
+                context.getSource().sendSuccess(() -> Component.literal("Lore applied."), false);
             }
         }
         return 1;
     }
 
-    public static int removeLore(CommandContext<ServerCommandSource> context) {
-        ServerCommandSource source = context.getSource();
-        PlayerEntity player = source.getPlayer();
+    public static int removeLore(CommandContext<CommandSourceStack> context) {
+        CommandSourceStack source = context.getSource();
+        Player player = source.getPlayer();
         if (player == null) return 0;
-        ItemStack heldStack = player.getMainHandStack();
+        ItemStack heldStack = player.getMainHandItem();
         int index = context.getArgument("index", Integer.class);
         if (heldStack.isEmpty()) {
-            context.getSource().sendError(Text.literal("You can't remove the lore of nothing."));
+            context.getSource().sendFailure(Component.literal("You can't remove the lore of nothing."));
         } else {
-            var currentLore = heldStack.getOrDefault(DataComponentTypes.LORE, new LoreComponent(List.of()));
-            ArrayList<Text> lines = new ArrayList<>(currentLore.lines());
+            var currentLore = heldStack.getOrDefault(DataComponents.LORE, new ItemLore(List.of()));
+            ArrayList<Component> lines = new ArrayList<>(currentLore.lines());
             if (index < 0 || index >= lines.size()) {
-                context.getSource().sendError(Text.literal("Index out of bounds."));
+                context.getSource().sendFailure(Component.literal("Index out of bounds."));
             } else {
                 lines.remove(index);
-                heldStack.set(DataComponentTypes.LORE, new LoreComponent(lines));
-                context.getSource().sendFeedback(() -> Text.literal("Lore removed."), false);
+                heldStack.set(DataComponents.LORE, new ItemLore(lines));
+                context.getSource().sendSuccess(() -> Component.literal("Lore removed."), false);
             }
         }
         return 1;
