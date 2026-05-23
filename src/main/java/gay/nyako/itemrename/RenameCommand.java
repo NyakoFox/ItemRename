@@ -4,7 +4,8 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import eu.pb4.placeholders.api.TextParserUtils;
+import eu.pb4.placeholders.api.ParserContext;
+import eu.pb4.placeholders.api.parsers.TagParser;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.component.DataComponents;
@@ -48,12 +49,12 @@ public final class RenameCommand {
             return 0;
         }
         ItemStack heldStack = player.getMainHandItem();
-        Component newName = TextParserUtils.formatTextSafe(context.getArgument("name", String.class));
+        Component newName = TagParser.SIMPLIFIED_TEXT_FORMAT_SAFE.parseComponent(context.getArgument("name", String.class), ParserContext.of());
         if (heldStack.isEmpty()) {
             context.getSource().sendFailure(Component.literal("You can't rename nothing."));
         } else {
             heldStack.set(DataComponents.CUSTOM_NAME, ((MutableComponent)newName).withStyle(x -> x.withItalic(false)));
-            var startingText = (MutableComponent) Component.literal("Your item has been renamed to ");
+            var startingText = Component.literal("Your item has been renamed to ");
             context.getSource().sendSuccess(() -> startingText.append(newName).append("."), false);
         }
         return 1;

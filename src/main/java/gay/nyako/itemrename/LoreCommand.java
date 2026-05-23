@@ -4,9 +4,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
-import eu.pb4.placeholders.api.TextParserUtils;
+import eu.pb4.placeholders.api.ParserContext;
 import java.util.ArrayList;
 import java.util.List;
+
+import eu.pb4.placeholders.api.parsers.TagParser;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -59,7 +61,7 @@ public final class LoreCommand {
         Player player = source.getPlayer();
         if (player == null) return 0;
         ItemStack heldStack = player.getMainHandItem();
-        Component newText = TextParserUtils.formatTextSafe(context.getArgument("text", String.class));
+        Component newText = TagParser.SIMPLIFIED_TEXT_FORMAT_SAFE.parseComponent(context.getArgument("text", String.class), ParserContext.of());
         if (heldStack.isEmpty()) {
             source.sendFailure(Component.literal("You can't add lore to nothing."));
         } else {
@@ -113,7 +115,7 @@ public final class LoreCommand {
         if (player == null) return 0;
         ItemStack heldStack = player.getMainHandItem();
         int index = context.getArgument("index", Integer.class);
-        Component newText = TextParserUtils.formatTextSafe(context.getArgument("lore", String.class));
+        Component newText = TagParser.SIMPLIFIED_TEXT_FORMAT_SAFE.parseComponent(context.getArgument("lore", String.class), ParserContext.of());
         if (heldStack.isEmpty()) {
             source.sendFailure(Component.literal("You can't add lore to nothing."));
         } else {
@@ -131,7 +133,7 @@ public final class LoreCommand {
         Player player = source.getPlayer();
         if (player == null) return 0;
         ItemStack heldStack = player.getMainHandItem();
-        Component newText = TextParserUtils.formatTextSafe(context.getArgument("text", String.class));
+        Component newText = TagParser.SIMPLIFIED_TEXT_FORMAT_SAFE.parseComponent(context.getArgument("text", String.class), ParserContext.of());
         int index = context.getArgument("index", Integer.class);
         if (heldStack.isEmpty()) {
             context.getSource().sendFailure(Component.literal("You can't set the lore of nothing."));

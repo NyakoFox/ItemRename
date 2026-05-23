@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.15-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
     id 'maven-publish'
     id "co.uzzu.dotenv.gradle" version "2.0.0"
     id "com.matthewprenger.cursegradle" version "1.4.0"
@@ -22,14 +22,12 @@ dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
 
-    mappings loom.officialMojangMappings()
-
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 
-    modImplementation include("eu.pb4:placeholder-api:${project.placeholder_api_version}")
+    implementation include("eu.pb4:placeholder-api:${project.placeholder_api_version}")
 }
 
 processResources {
@@ -95,7 +93,7 @@ modrinth {
     projectId = 'i5cjb3PQ'
     versionNumber = project.mod_version
     versionName = 'ItemRename ' + project.mod_version
-    uploadFile = remapJar
+    uploadFile = jar
     gameVersions = List<String>.of(project.functional_versions.split(","))
     loaders = ['fabric', 'quilt']
     changelog = file("changelog.md").text
@@ -116,20 +114,19 @@ curseforge {
             addGameVersion(version)
         }
 
-        addGameVersion "Java 17"
+        addGameVersion "Java 25"
         addGameVersion "Fabric"
-        addGameVersion "Quilt"
 
         relations {
             requiredDependency("fabric-api")
         }
 
-        mainArtifact(remapJar.archiveFile) {
+        mainArtifact(jar.archiveFile) {
             displayName = 'ItemRename ' + project.mod_version
         }
 
         afterEvaluate {
-            uploadTask.dependsOn remapJar
+            uploadTask.dependsOn jar
         }
     }
     options {
