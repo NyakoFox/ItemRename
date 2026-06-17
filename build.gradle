@@ -2,24 +2,24 @@ plugins {
     id 'net.fabricmc.fabric-loom' version "${loom_version}"
     id 'maven-publish'
     id "co.uzzu.dotenv.gradle" version "2.0.0"
-    id "com.matthewprenger.cursegradle" version "1.4.0"
-    id "com.modrinth.minotaur" version "2.+"
+
+    id "me.modmuss50.mod-publish-plugin" version "2.0.0-beta.2"
 }
 
 version = project.mod_version
 group = project.maven_group
 
 repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
-    maven { url "https://maven.nucleoid.xyz/" }
+    maven {
+        name = "Nucleoid"
+        url = 'https://maven.nucleoid.xyz/releases'
+        metadataSources {
+            artifact()
+        }
+    }
 }
 
 dependencies {
-    // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
 
     implementation "net.fabricmc:fabric-loader:${project.loader_version}"
@@ -31,39 +31,33 @@ dependencies {
 }
 
 processResources {
-    inputs.property "version", project.version
+    inputs.properties([
+            version: project.version,
+            loader_version: project.loader_version,
+            minecraft_depends: project.minecraft_depends,
+    ])
+
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version
+        expand inputs.properties
     }
 }
 
-def targetJavaVersion = 17
 tasks.withType(JavaCompile).configureEach {
-    // ensure that the encoding is set to UTF-8, no matter what the system default is
-    // this fixes some edge cases with special characters not displaying correctly
-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-    // If Javadoc is generated, this must be specified in that task too.
-    it.options.encoding = "UTF-8"
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        it.options.release = targetJavaVersion
-    }
+    it.options.release = 25
 }
 
 java {
-    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
-    if (JavaVersion.current() < javaVersion) {
-        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
-    }
-    base.archivesName = project.archives_base_name
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
     withSourcesJar()
+
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
+    inputs.property "archivesName", project.base.archivesName
+
     from("LICENSE") {
         rename { "${it}_${project.archives_base_name}" }
     }
@@ -72,7 +66,8 @@ jar {
 // configure the maven publication
 publishing {
     publications {
-        mavenJava(MavenPublication) {
+        create("mavenJava", MavenPublication) {
+            artifactId = project.archives_base_name
             from components.java
         }
     }
@@ -86,50 +81,33 @@ publishing {
     }
 }
 
-import com.modrinth.minotaur.dependencies.ModDependency
 
-modrinth {
-    token = env.MODRINTH_TOKEN.value
-    projectId = 'i5cjb3PQ'
-    versionNumber = project.mod_version
-    versionName = 'ItemRename ' + project.mod_version
-    uploadFile = jar
-    gameVersions = List<String>.of(project.functional_versions.split(","))
-    loaders = ['fabric', 'quilt']
-    changelog = file("changelog.md").text
-    dependencies = [
-            new ModDependency('P7dR8mSH', 'required') // Fabric API
-    ]
-}
+publishMods {
+    file = jar.archiveFile
 
-curseforge {
-    apiKey = env.CURSEFORGE_TOKEN.value
-    project {
-        id = '711029'
-        releaseType = 'release'
-        changelog = file("changelog.md").text
-        changelogType = 'markdown'
+    type = STABLE
 
-        for (version in functional_versions.split(",")) {
-            addGameVersion(version)
-        }
+    version = project.mod_version
+    displayName = 'ItemRename ' + project.mod_version
+    changelog = file("CHANGELOG.md").text
 
-        addGameVersion "Java 25"
-        addGameVersion "Fabric"
+    modLoaders.add("fabric")
 
-        relations {
-            requiredDependency("fabric-api")
-        }
-
-        mainArtifact(jar.archiveFile) {
-            displayName = 'ItemRename ' + project.mod_version
-        }
-
-        afterEvaluate {
-            uploadTask.dependsOn jar
-        }
+    curseforge {
+        projectId = "711029"
+        projectSlug = "itemrename"
+        accessToken = env.CURSEFORGE_TOKEN.orNull()
+        minecraftVersions.addAll(project.curseforge_versions.split(","))
+        client = true
+        server = true
+        requires("fabric-api")
+        requires("text-placeholder-api")
     }
-    options {
-        forgeGradleIntegration = false
+    modrinth {
+        projectId = "i5cjb3PQ"
+        accessToken = env.MODRINTH_TOKEN.orNull()
+        minecraftVersionList(project.modrinth_versions)
+        requires("P7dR8mSH") // Fabric API
+        requires("eXts2L7r") // Text placeholder api
     }
 }
